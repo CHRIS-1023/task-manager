@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/auth_service/auth.dart';
-import 'package:task_manager/pages/login.dart';
-import 'package:task_manager/widgets/screen_navigation.dart';
+import 'package:task_manager/auth_service/helpers.dart';
+import 'package:task_manager/widgets/bottom_navigation_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,48 +12,75 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
+  String userName = "";
+  String userEmail = "";
+
+  @override
+  void initState() {
+    super.initState();
+    gettingUserData();
+  }
+
+  gettingUserData() async {
+    await HelperFunctions.getUserNameFromSF().then((val) {
+      setState(() {
+        userName = val!;
+      });
+    });
+
+    await HelperFunctions.getUserEmailFromSF().then((val) {
+      setState(() {
+        userEmail = val!;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home Page'),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                showDialog(
-                  barrierDismissible: false,
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text("Logout"),
-                      content: const Text("Are you sure you want to logout?"),
-                      actions: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(
-                            Icons.cancel,
-                            color: Colors.red,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () async {
-                            await authService.signOut();
-                            nextScreenReplace(context, LoginPage());
-                          },
-                          icon: const Icon(
-                            Icons.done,
-                            color: Colors.green,
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-              icon: const Icon(Icons.exit_to_app_sharp))
-        ],
+    return SafeArea(
+      child: Scaffold(
+        body: SingleChildScrollView(
+            child: Form(
+                child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const CircleAvatar(
+                    radius: 28,
+                  ),
+                  IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.notifications_none_outlined,
+                        size: 30,
+                      ))
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 0, 0, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    userName,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 26),
+                  ),
+                  const SizedBox(
+                    height: 6,
+                  ),
+                  Text(userEmail)
+                ],
+              ),
+            )
+          ],
+        ))),
+        bottomNavigationBar: const CustomBottomNavigationBar(),
       ),
     );
   }
