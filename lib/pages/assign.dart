@@ -25,7 +25,11 @@ class _AssignPageState extends State<AssignPage> {
   void _refreshTasks() {
     final data = _tasksBox.keys.map((key) {
       final task = _tasksBox.get(key);
-      return {"key": key, "task": task["task"]};
+      return {
+        "key": key,
+        "task": task["task"],
+        "isChecked": task["isChecked"] ?? false
+      };
     }).toList();
 
     setState(() {
@@ -38,9 +42,18 @@ class _AssignPageState extends State<AssignPage> {
     _refreshTasks();
   }
 
-  Future<void> _deleteTask(int itemKey) async {
-    await _tasksBox.delete(itemKey);
+  Future<void> _deleteTask(int taskKey) async {
+    await _tasksBox.delete(taskKey);
     _refreshTasks();
+  }
+
+  void _toggleTask(int taskKey) {
+    final taskIndex = _tasks.indexWhere((task) => task['key'] == taskKey);
+    if (taskIndex != -1) {
+      setState(() {
+        _tasks[taskIndex]['isChecked'] = !_tasks[taskIndex]['isChecked'];
+      });
+    }
   }
 
   void showForm(BuildContext context, int? taskKey) async {
@@ -142,7 +155,6 @@ class _AssignPageState extends State<AssignPage> {
                 child: GridView.builder(
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
-                  itemCount: 6,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 1, mainAxisSpacing: 12),
                   itemBuilder: (context, index) {
@@ -157,6 +169,7 @@ class _AssignPageState extends State<AssignPage> {
                           children: [
                             CircleAvatar(
                               radius: 34,
+                              child: Icon(Icons.person),
                             ),
                             Text('name')
                           ],
@@ -185,10 +198,19 @@ class _AssignPageState extends State<AssignPage> {
                           itemBuilder: (context, index) {
                             final currentItem = _tasks[index];
                             return Card(
-                              color: Colors.blue[100],
+                              color: Colors.grey[600],
                               margin: const EdgeInsets.all(5),
                               elevation: 3,
                               child: ListTile(
+                                leading: Checkbox(
+                                  value: currentItem['isChecked'],
+                                  onChanged: (value) {
+                                    _toggleTask(currentItem['key']);
+                                  },
+                                ),
+                                onTap: () {
+                                  _toggleTask(currentItem['key']);
+                                },
                                 title: Text(currentItem['task']),
                                 trailing: IconButton(
                                     onPressed: () {

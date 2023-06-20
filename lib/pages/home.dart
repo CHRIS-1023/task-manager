@@ -71,7 +71,32 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(
                 height: 6,
               ),
-              Text(userEmail)
+              Text(userEmail),
+              const Divider(
+                height: 30,
+                color: Colors.amber,
+              ),
+              const Text('Recent tasks'),
+              const SizedBox(
+                height: 6,
+              ),
+              SizedBox(
+                height: 540,
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 1,
+                      mainAxisSpacing: 12,
+                      mainAxisExtent: 100),
+                  itemBuilder: (context, index) {
+                    return Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: Colors.grey[400]),
+                    );
+                  },
+                ),
+              )
             ],
           ),
         ))),
