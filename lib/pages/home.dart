@@ -41,12 +41,12 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         body: SingleChildScrollView(
             child: Form(
-                child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Row(
+                child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const CircleAvatar(
@@ -60,25 +60,20 @@ class _HomePageState extends State<HomePage> {
                       ))
                 ],
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 0, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    userName,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 26),
-                  ),
-                  const SizedBox(
-                    height: 6,
-                  ),
-                  Text(userEmail)
-                ],
+              const SizedBox(
+                height: 6,
               ),
-            )
-          ],
+              Text(
+                userName,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
+              ),
+              const SizedBox(
+                height: 6,
+              ),
+              Text(userEmail)
+            ],
+          ),
         ))),
         bottomNavigationBar: const CustomBottomNavigationBar(),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_manager/pages/assign.dart';
 import 'package:task_manager/pages/home.dart';
 import 'package:task_manager/pages/settings.dart';
 import 'package:task_manager/widgets/screen_navigation.dart';
@@ -19,11 +20,19 @@ class CustomBottomNavigationBar extends StatelessWidget {
               },
               icon: const Icon(Icons.home)),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2030));
+            },
             icon: const Icon(Icons.calendar_month),
           ),
           FloatingActionButton(
-            onPressed: () {},
+            onPressed: () {
+              nextScreenReplace(context, const AssignPage());
+            },
             child: const Icon(Icons.add),
           ),
           IconButton(onPressed: () {}, icon: const Icon(Icons.message)),
