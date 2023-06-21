@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:task_manager/pages/home.dart';
@@ -102,6 +103,14 @@ class _AssignPageState extends State<AssignPage> {
             ));
   }
 
+  final CollectionReference _userCollection =
+      FirebaseFirestore.instance.collection('users');
+
+  Future<List<DocumentSnapshot>> _fetchUsers() async {
+    final QuerySnapshot snapshot = await _userCollection.get();
+    return snapshot.docs;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -150,32 +159,49 @@ class _AssignPageState extends State<AssignPage> {
               const SizedBox(
                 height: 10,
               ),
-              SizedBox(
-                height: 100,
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1, mainAxisSpacing: 12),
-                  itemBuilder: (context, index) {
-                    return Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(14),
-                            color: Colors.grey[400]),
-                        child: const Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            CircleAvatar(
-                              radius: 34,
-                              child: Icon(Icons.person),
-                            ),
-                            Text('name')
-                          ],
-                        ));
-                  },
-                ),
+              FutureBuilder<List<DocumentSnapshot>>(
+                future: _fetchUsers(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasData) {
+                    final users = snapshot.data!
+                        as List<QueryDocumentSnapshot<Map<String, dynamic>>>;
+                    return SizedBox(
+                      height: 100,
+                      child: GridView.builder(
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 1, mainAxisSpacing: 12),
+                        itemCount: users.length,
+                        itemBuilder: (context, index) {
+                          final user = users[index].data();
+                          final userName = user['name'];
+                          return Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: Colors.grey[400]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const CircleAvatar(
+                                    radius: 34,
+                                    child: Icon(Icons.person),
+                                  ),
+                                  Text(userName)
+                                ],
+                              ));
+                        },
+                      ),
+                    );
+                  }
+                  return const SizedBox();
+                },
               ),
               const SizedBox(
                 height: 10,

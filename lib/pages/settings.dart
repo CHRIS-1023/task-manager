@@ -38,7 +38,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     IconButton(
                       onPressed: () async {
                         await authService.signOut();
-                        nextScreenReplace(context, LoginPage());
+                        nextScreenReplace(context, const LoginPage());
                       },
                       icon: const Icon(
                         Icons.done,

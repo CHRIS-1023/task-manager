@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/auth_service/auth.dart';
 import 'package:task_manager/auth_service/helpers.dart';
+import 'package:task_manager/pages/message.dart';
 import 'package:task_manager/widgets/bottom_navigation_bar.dart';
+import 'package:task_manager/widgets/screen_navigation.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -53,7 +55,9 @@ class _HomePageState extends State<HomePage> {
                     radius: 28,
                   ),
                   IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        nextScreen(context, const MessagePage());
+                      },
                       icon: const Icon(
                         Icons.notifications_none_outlined,
                         size: 30,

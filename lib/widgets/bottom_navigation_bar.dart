@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:task_manager/pages/assign.dart';
 import 'package:task_manager/pages/home.dart';
+import 'package:task_manager/pages/message.dart';
 import 'package:task_manager/pages/settings.dart';
 import 'package:task_manager/widgets/screen_navigation.dart';
 
@@ -35,7 +36,11 @@ class CustomBottomNavigationBar extends StatelessWidget {
             },
             child: const Icon(Icons.add),
           ),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.message)),
+          IconButton(
+              onPressed: () {
+                nextScreen(context, const MessagePage());
+              },
+              icon: const Icon(Icons.message)),
           IconButton(
               onPressed: () {
                 nextScreen(context, const SettingsPage());
