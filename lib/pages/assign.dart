@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:task_manager/models/tasks.dart';
 import 'package:task_manager/pages/home.dart';
+import 'package:task_manager/services/task_database.dart';
 import 'package:task_manager/widgets/screen_navigation.dart';
 
 class AssignPage extends StatefulWidget {
@@ -13,7 +15,7 @@ class AssignPage extends StatefulWidget {
 
 class _AssignPageState extends State<AssignPage> {
   final TextEditingController _taskController = TextEditingController();
-  List<Map<String, dynamic>> _tasks = [];
+  List<Tasks> _tasks = [];
 
   final _tasksBox = Hive.box('tasksBox');
 
@@ -25,43 +27,34 @@ class _AssignPageState extends State<AssignPage> {
 
   void _refreshTasks() {
     final data = _tasksBox.keys.map((key) {
-      final task = _tasksBox.get(key);
-      return {
-        "key": key,
-        "task": task["task"],
-        "isChecked": task["isChecked"] ?? false
-      };
+      final task = _tasksBox.get(key) as Tasks;
+      return Tasks(
+          id: key, name: task.name, isChecked: task.isChecked, assignTo: '');
     }).toList();
 
     setState(() {
-      _tasks = data.reversed.toList();
+      _tasks = data;
     });
   }
 
-  Future<void> _createTask(Map<String, dynamic> newTask) async {
-    await _tasksBox.add(newTask);
+  Future<void> _createTask(Tasks newTask) async {
+    final taskId = await _tasksBox.add(newTask);
+    newTask.id = taskId;
+    await DatabaseService().saveTask(newTask);
     _refreshTasks();
   }
 
   Future<void> _deleteTask(int taskKey) async {
     await _tasksBox.delete(taskKey);
+    await DatabaseService().deleteTask(taskKey);
     _refreshTasks();
-  }
-
-  void _toggleTask(int taskKey) {
-    final taskIndex = _tasks.indexWhere((task) => task['key'] == taskKey);
-    if (taskIndex != -1) {
-      setState(() {
-        _tasks[taskIndex]['isChecked'] = !_tasks[taskIndex]['isChecked'];
-      });
-    }
   }
 
   void showForm(BuildContext context, int? taskKey) async {
     if (taskKey != null) {
       final existingTask =
-          _tasks.firstWhere((element) => element['key'] == taskKey);
-      _taskController.text = existingTask['name'];
+          _tasks.firstWhere((element) => element.key == taskKey);
+      _taskController.text = existingTask.name;
     }
     showModalBottomSheet(
         context: context,
@@ -86,9 +79,13 @@ class _AssignPageState extends State<AssignPage> {
                   ),
                   ElevatedButton(
                       onPressed: () async {
-                        _createTask({
-                          "task": _taskController.text,
-                        });
+                        final newTask = Tasks(
+                          id: DateTime.now().millisecondsSinceEpoch,
+                          name: _taskController.text,
+                          isChecked: false,
+                          assignTo: '',
+                        );
+                        _createTask(newTask);
 
                         _taskController.text = '';
 
@@ -139,70 +136,11 @@ class _AssignPageState extends State<AssignPage> {
               const SizedBox(
                 height: 20,
               ),
-              const Text(
-                'About the task',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Container(
-                height: 100,
-                decoration: BoxDecoration(
-                    color: Colors.grey[400],
-                    borderRadius: BorderRadius.circular(14)),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
               const Text('Assign to'),
               const SizedBox(
                 height: 10,
               ),
-              FutureBuilder<List<DocumentSnapshot>>(
-                future: _fetchUsers(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (snapshot.hasData) {
-                    final users = snapshot.data!
-                        as List<QueryDocumentSnapshot<Map<String, dynamic>>>;
-                    return SizedBox(
-                      height: 100,
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 1, mainAxisSpacing: 12),
-                        itemCount: users.length,
-                        itemBuilder: (context, index) {
-                          final user = users[index].data();
-                          final userName = user['name'];
-                          return Container(
-                              height: 50,
-                              width: 50,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(14),
-                                  color: Colors.grey[400]),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const CircleAvatar(
-                                    radius: 34,
-                                    child: Icon(Icons.person),
-                                  ),
-                                  Text(userName)
-                                ],
-                              ));
-                        },
-                      ),
-                    );
-                  }
-                  return const SizedBox();
-                },
-              ),
+              assignTo(),
               const SizedBox(
                 height: 10,
               ),
@@ -210,56 +148,121 @@ class _AssignPageState extends State<AssignPage> {
               const SizedBox(
                 height: 10,
               ),
-              Container(
-                  height: 360,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[400],
-                      borderRadius: BorderRadius.circular(14)),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 310,
-                        child: ListView.builder(
-                          itemCount: _tasks.length,
-                          itemBuilder: (context, index) {
-                            final currentItem = _tasks[index];
-                            return Card(
-                              color: Colors.grey[600],
-                              margin: const EdgeInsets.all(5),
-                              elevation: 3,
-                              child: ListTile(
-                                leading: Checkbox(
-                                  value: currentItem['isChecked'],
-                                  onChanged: (value) {
-                                    _toggleTask(currentItem['key']);
-                                  },
-                                ),
-                                onTap: () {
-                                  _toggleTask(currentItem['key']);
-                                },
-                                title: Text(currentItem['task']),
-                                trailing: IconButton(
-                                    onPressed: () {
-                                      _deleteTask(currentItem['key']);
-                                    },
-                                    icon: const Icon(Icons.delete)),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          showForm(context, null);
-                        },
-                        icon: const Icon(Icons.add),
-                      )
-                    ],
-                  ))
+              tasks(context)
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Container tasks(BuildContext context) {
+    return Container(
+        height: 360,
+        decoration: BoxDecoration(
+            color: Colors.grey[400], borderRadius: BorderRadius.circular(14)),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 310,
+              child: ListView.builder(
+                itemCount: _tasks.length,
+                itemBuilder: (context, index) {
+                  final currentItem = _tasks[index];
+                  return Card(
+                    color: Colors.grey[600],
+                    margin: const EdgeInsets.all(5),
+                    elevation: 3,
+                    child: ListTile(
+                      title: Text(currentItem.name),
+                      leading: Checkbox(
+                        value: currentItem.isChecked,
+                        onChanged: (newValue) {
+                          setState(() {
+                            currentItem.toggleChecked();
+                          });
+                        },
+                      ),
+                      onTap: () {
+                        setState(() {
+                          currentItem.toggleChecked();
+                        });
+                      },
+                      trailing: IconButton(
+                          onPressed: () {
+                            _deleteTask(currentItem.id);
+                          },
+                          icon: const Icon(Icons.delete)),
+                    ),
+                  );
+                },
+              ),
+            ),
+            IconButton(
+              onPressed: () {
+                showForm(context, null);
+              },
+              icon: const Icon(Icons.add),
+            )
+          ],
+        ));
+  }
+
+  FutureBuilder<List<DocumentSnapshot<Object?>>> assignTo() {
+    return FutureBuilder<List<DocumentSnapshot>>(
+      future: _fetchUsers(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasData) {
+          final users = snapshot.data!
+              as List<QueryDocumentSnapshot<Map<String, dynamic>>>;
+          return SizedBox(
+            height: 100,
+            child: GridView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 1, mainAxisSpacing: 12),
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index].data();
+                final userName = user['name'];
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      for (final task in _tasks) {
+                        if (task.isChecked) {
+                          task.assignTo = userName;
+                          task.isChecked = false;
+                        }
+                      }
+                    });
+                  },
+                  child: Container(
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          color: Colors.grey[400]),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircleAvatar(
+                            radius: 34,
+                            child: Icon(Icons.person),
+                          ),
+                          Text(userName)
+                        ],
+                      )),
+                );
+              },
+            ),
+          );
+        }
+        return const SizedBox();
+      },
     );
   }
 }

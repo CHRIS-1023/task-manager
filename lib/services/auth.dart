@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:task_manager/auth_service/database.dart';
-import 'package:task_manager/auth_service/helpers.dart';
+import 'package:task_manager/services/database.dart';
+import 'package:task_manager/services/helpers.dart';
 
 class AuthService {
   final FirebaseAuth firebaseAuth = FirebaseAuth.instance;

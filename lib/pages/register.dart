@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:task_manager/auth_service/auth.dart';
-import 'package:task_manager/auth_service/helpers.dart';
+import 'package:task_manager/services/auth.dart';
+import 'package:task_manager/services/helpers.dart';
 import 'package:task_manager/pages/home.dart';
 import 'package:task_manager/pages/login.dart';
 import 'package:task_manager/widgets/screen_navigation.dart';
