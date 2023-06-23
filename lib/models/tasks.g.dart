@@ -20,7 +20,7 @@ class TasksAdapter extends TypeAdapter<Tasks> {
       id: fields[0] as int,
       name: fields[1] as String,
       isChecked: fields[2] as bool,
-      assignTo: fields[3] as String,
+      assignedTo: fields[3] as String,
     );
   }
 
@@ -35,7 +35,7 @@ class TasksAdapter extends TypeAdapter<Tasks> {
       ..writeByte(2)
       ..write(obj.isChecked)
       ..writeByte(3)
-      ..write(obj.assignTo);
+      ..write(obj.assignedTo);
   }
 
   @override

@@ -14,8 +14,7 @@ class Tasks extends HiveObject {
   bool isChecked;
 
   @HiveField(3)
-  String assignTo;
-
+  String assignedTo = "";
   void toggleChecked() {
     isChecked = !isChecked;
   }
@@ -24,5 +23,5 @@ class Tasks extends HiveObject {
       {required this.id,
       required this.name,
       required this.isChecked,
-      required this.assignTo});
+      required this.assignedTo});
 }

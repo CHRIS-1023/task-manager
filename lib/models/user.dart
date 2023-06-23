@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 part 'user.g.dart';
 
 @HiveType(typeId: 0)
-class Tasks extends HiveObject {
+class User extends HiveObject {
   @HiveField(0)
   String uid;
 
@@ -11,7 +11,7 @@ class Tasks extends HiveObject {
   final String name;
 
   @HiveField(2)
-  final String assignedTasks;
+  List assignedTasks = [];
 
-  Tasks({required this.uid, required this.name, required this.assignedTasks});
+  User({required this.uid, required this.name, required this.assignedTasks});
 }

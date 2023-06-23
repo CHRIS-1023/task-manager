@@ -29,7 +29,7 @@ class _AssignPageState extends State<AssignPage> {
     final data = _tasksBox.keys.map((key) {
       final task = _tasksBox.get(key) as Tasks;
       return Tasks(
-          id: key, name: task.name, isChecked: task.isChecked, assignTo: '');
+          id: key, name: task.name, isChecked: task.isChecked, assignedTo: "");
     }).toList();
 
     setState(() {
@@ -83,7 +83,7 @@ class _AssignPageState extends State<AssignPage> {
                           id: DateTime.now().millisecondsSinceEpoch,
                           name: _taskController.text,
                           isChecked: false,
-                          assignTo: '',
+                          assignedTo: "",
                         );
                         _createTask(newTask);
 
@@ -229,12 +229,13 @@ class _AssignPageState extends State<AssignPage> {
               itemBuilder: (context, index) {
                 final user = users[index].data();
                 final userName = user['name'];
+                final userId = user['uid'];
                 return GestureDetector(
                   onTap: () {
                     setState(() {
                       for (final task in _tasks) {
                         if (task.isChecked) {
-                          task.assignTo = userName;
+                          task.assignedTo = userId;
                           task.isChecked = false;
                         }
                       }
