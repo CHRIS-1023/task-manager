@@ -166,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
           await HelperFunctions.saveUserEmailSF(email);
           await HelperFunctions.saveUserNameSF(snapshot.docs[0]['name']);
 
-          nextScreenReplace(context, const HomePage());
+          nextScreenReplace(context, const HomePage(uid: '',));
         } else {
           showSnackbar(context, Colors.red, value);
           setState(() {

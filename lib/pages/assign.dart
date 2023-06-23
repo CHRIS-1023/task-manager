@@ -122,7 +122,11 @@ class _AssignPageState extends State<AssignPage> {
                 children: [
                   IconButton(
                       onPressed: () {
-                        nextScreenReplace(context, const HomePage());
+                        nextScreenReplace(
+                            context,
+                            const HomePage(
+                              uid: '',
+                            ));
                       },
                       icon: const Icon(Icons.arrow_back)),
                   const Text(

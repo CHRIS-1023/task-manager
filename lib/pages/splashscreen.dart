@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: _isSignedIn ? const HomePage() : const LoginPage(),
+      home: _isSignedIn ? const HomePage(uid: '',) : const LoginPage(),
       darkTheme: ThemeData(brightness: Brightness.dark),
       theme: ThemeData(brightness: Brightness.light),
       themeMode: ThemeMode.system,

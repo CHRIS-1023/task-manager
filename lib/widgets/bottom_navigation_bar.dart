@@ -17,7 +17,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
         children: [
           IconButton(
               onPressed: () {
-                nextScreenReplace(context, const HomePage());
+                nextScreenReplace(context, const HomePage(uid: '',));
               },
               icon: const Icon(Icons.home)),
           IconButton(

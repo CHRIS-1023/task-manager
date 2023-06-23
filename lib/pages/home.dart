@@ -1,12 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:task_manager/pages/message.dart';
 import 'package:task_manager/services/auth.dart';
 import 'package:task_manager/services/helpers.dart';
-import 'package:task_manager/pages/message.dart';
 import 'package:task_manager/widgets/bottom_navigation_bar.dart';
 import 'package:task_manager/widgets/screen_navigation.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String uid;
+
+  const HomePage({super.key, required this.uid});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -16,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
   String userName = "";
   String userEmail = "";
+  String userUid = "";
 
   @override
   void initState() {
@@ -34,6 +38,11 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         userEmail = val!;
       });
+    });
+
+    String uid = await authService.getCurrentUserUid();
+    setState(() {
+      userUid = uid;
     });
   }
 
@@ -86,21 +95,50 @@ class _HomePageState extends State<HomePage> {
               ),
               SizedBox(
                 height: 540,
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1,
-                      mainAxisSpacing: 12,
-                      mainAxisExtent: 100),
-                  itemBuilder: (context, index) {
-                    return Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(14),
-                          color: Colors.grey[400]),
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('tasks')
+                      .where('assignedTo', isEqualTo: userUid)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    final tasks = snapshot.data!.docs;
+
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 1,
+                        mainAxisSpacing: 12,
+                        mainAxisExtent: 100,
+                      ),
+                      itemCount: tasks.length,
+                      itemBuilder: (context, index) {
+                        final task =
+                            tasks[index].data() as Map<String, dynamic>;
+                        final taskName = task['name'] as String;
+
+                        return Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            color: Colors.grey[400],
+                          ),
+                          child: Center(child: Text(taskName)),
+                        );
+                      },
                     );
                   },
                 ),
-              )
+              ),
             ],
           ),
         ))),
