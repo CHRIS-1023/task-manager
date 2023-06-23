@@ -8,7 +8,7 @@ class DatabaseService {
   Future<void> saveTask(Tasks newTask) async {
     await taskCollection.doc(newTask.id.toString()).set({
       'name': newTask.name,
-      'assignedTo': [],
+      'assignedTo': newTask.assignedTo,
     });
   }
 

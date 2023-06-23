@@ -18,7 +18,6 @@ class UserAdapter extends TypeAdapter<User> {
     };
     return User(
       uid: fields[0] as String,
-      name: fields[1] as String,
       assignedTasks: (fields[2] as List).cast<dynamic>(),
     );
   }
@@ -26,11 +25,9 @@ class UserAdapter extends TypeAdapter<User> {
   @override
   void write(BinaryWriter writer, User obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(2)
       ..writeByte(0)
       ..write(obj.uid)
-      ..writeByte(1)
-      ..write(obj.name)
       ..writeByte(2)
       ..write(obj.assignedTasks);
   }

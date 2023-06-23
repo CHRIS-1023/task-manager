@@ -237,6 +237,7 @@ class _AssignPageState extends State<AssignPage> {
                         if (task.isChecked) {
                           task.assignedTo = userId;
                           task.isChecked = false;
+                          DatabaseService().saveTask(task);
                         }
                       }
                     });
