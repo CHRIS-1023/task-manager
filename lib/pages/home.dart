@@ -62,6 +62,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   const CircleAvatar(
                     radius: 28,
+                    child: Icon(Icons.person),
                   ),
                   IconButton(
                       onPressed: () {
@@ -123,8 +124,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       itemCount: tasks.length,
                       itemBuilder: (context, index) {
-                        final task =
-                            tasks[index].data() as Map<String, dynamic>;
+                        final task = tasks[index].data() as Map;
                         final taskName = task['name'] as String;
 
                         return Container(
